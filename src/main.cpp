@@ -126,7 +126,7 @@ void loop() {
   int flashDurationMin = 3;
   int flashDurationMax = 9;
   // flash off range - ms
-  int flashOffsetMin = 0;
+  int flashOffsetMin = 1;
   int flashOffsetMax = 75;
   // time to next flash range - ms
   int nextFlashDelayMin = 1;
@@ -169,19 +169,25 @@ void loop() {
       color = rgbWS.Color(0, g + colorV, 0, flashBrightness);
       rgbWS.fill(color, 0, NEOPIXEL_LED_COUNT/4);
       rgbWS.show();
+      yield();
       delay(random(flashOffsetMin, flashOffsetMax));
       rgbWS.fill(color, NEOPIXEL_LED_COUNT/4*2, NEOPIXEL_LED_COUNT/4);
       rgbWS.show();
+      yield();
       delay(random(flashOffsetMin, flashOffsetMax));
       rgbWS.fill(color, NEOPIXEL_LED_COUNT/4, NEOPIXEL_LED_COUNT/4);
       rgbWS.show();
+      yield();
       delay(random(flashOffsetMin, flashOffsetMax));
       rgbWS.fill(color, NEOPIXEL_LED_COUNT/4*2, NEOPIXEL_LED_COUNT/4*2);
       rgbWS.show();
+      yield();
       delay (random(flashDurationMin, flashDurationMax));
       rgbWS.clear();
       rgbWS.show();
+      yield();
       delay (random(nextFlashDelayMin, nextFlashDelayMax));
+      yield();
     }
 
     if(!isActive())
@@ -190,8 +196,10 @@ void loop() {
       rgbWS.show();
       return;
     }
+    yield();
   }
     
+  yield();
 
   //myPlayer.volume(randomVol);
   myPlayer.volume(30);
