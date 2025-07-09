@@ -5,8 +5,8 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <Adafruit_NeoPixel.h>
-#include <DFRobotDFPlayerMini.h>
 #include <SoftwareSerial.h>
+#include <DFPlayerMini_Fast.h>
 
 #include "HttpControl.h"
 #include "secrets.h"
@@ -15,6 +15,8 @@
 
 #define NEOPIXEL_LED_PIN 26
 #define NEOPIXEL_BRIGHTNESS 255
+
+#define THRESHOLD 10*1000
 
 static const uint8_t PIN_MP3_TX = 25;
 static const uint8_t PIN_MP3_RX = 27;
@@ -32,7 +34,8 @@ HttpControl* httpControl;
 int currentSectorPercentEnd = 100;
 int currentSectorCycles = 0;
 
-DFRobotDFPlayerMini myPlayer;
+DFPlayerMini_Fast myPlayer;
+
 
 void setup() {
   Serial.begin(115200);
@@ -60,15 +63,19 @@ void setup() {
   httpControl = new HttpControl();
   //randomSeed(analogRead(0));
 
+  
+
   softwareSerial.begin(9600);
   delay(3000);
-  if (myPlayer.begin(softwareSerial)) {
+  if (myPlayer.begin(softwareSerial, false)) {
     Serial.println("Connection successful.");
+    delay(1000);
     // set initial volume 0-30
     myPlayer.volume(30);
   } else {
     Serial.println("Connection failed.");
   }
+  
 
   Serial.println("Setup finished");
 }
@@ -202,10 +209,20 @@ void loop() {
   yield();
 
   //myPlayer.volume(randomVol);
-  myPlayer.volume(30);
+  //myPlayer.volume(30);
+  ulong startMillis = millis();
   myPlayer.play(randomTrack);
+  while(myPlayer.isPlaying())
+  {
+    delay(1);
+    if(millis() - startMillis > THRESHOLD)
+    {
+      myPlayer.stop();
+      break;
+    }
+  }
 
-  delay(longestTrack);
+  //delay(longestTrack);
 
   //for(int i = 0; i < NEOPIXEL_LED_COUNT; i++) {
   //  rgbWS.setPixelColor(i, arguments.red, arguments.green, arguments.blue);
